@@ -3,6 +3,8 @@ package io.lazyii.captcha;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 
 /**
@@ -12,7 +14,6 @@ public class RandomCircles {
     
     private Bounds DEFAULT_BOUNDS = new Bounds(0, 0, 400f, 200f);
     
-    int count = 1;
     float r = 30;
     //画布边界
     Bounds bounds = DEFAULT_BOUNDS;
@@ -31,19 +32,28 @@ public class RandomCircles {
             return circles
                     .stream()
                     .map(x -> new Tuple<Float, Float>(Math.abs(x.getX() - cr.getX()), Math.abs(x.getY() - cr.getY())))
-                    .filter(x -> x._1 < r || x._2 < r)
+                    .filter(x -> x._1 <= r || x._2 <= r)
                     .anyMatch(x -> 4 * r * r >= x._1 * x._1 + x._2 * x._2);
         }
     }
     
-    public List<Circle> randomCrs() {
+    public List<Circle> randomCrs(int num) {
+        return randomCrs(num, 4 * num);
+    }
+    
+    public List<Circle> randomCrs(int num, int tryTimes) {
         if (bounds == null) {
             throw new RuntimeException("bounds is null, please init bounds first");
+        } else if (num > tryTimes) {
+            throw new RuntimeException("error! tryTimes must larger than num");
         } else {
-            Circle circle = randomCr();
-            //判断圆之间是否有交叉
-            boolean intersect = this.intersect(circle);
-            //todo 如果相交则抛弃，不相交放进list中
+            IntStream
+                    .rangeClosed(0, tryTimes)
+                    .mapToObj(x -> randomCr())
+                    .filter(Predicate.not(this::intersect))
+                    .peek(circles::add)
+                    .limit(num)
+                    .count();
         }
         return circles;
     }
@@ -70,5 +80,11 @@ public class RandomCircles {
             this.width = width;
             this.height = height;
         }
+    }
+    
+    public static void main(String[] args) {
+        RandomCircles randomCircles = new RandomCircles();
+        List<Circle> list = randomCircles.randomCrs(2);
+        System.out.println(list);
     }
 }
