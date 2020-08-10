@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by admin on 2020/8/7 14:02:40.
  */
-public class ImageIOTest {
+public class GridTextImageIOTest {
     
     @Test
     public void markImageByMoreTextOrigin() {
@@ -27,6 +27,13 @@ public class ImageIOTest {
             
             //任意一个400*200的图片
             String sourcePath = "/Users/wyd/Pictures/bg.png";
+            String fontPath = "/Users/wyd/Pictures/HYKaiTiJ.ttf";
+            String output = "/Users/wyd/Pictures/1-test.png";
+            if (FontUtilities.isWindows) {
+                sourcePath = "d:/bg.png";
+                fontPath = "d:/data/HYKaiTiJ.ttf";
+                output = "d:/1-test.png";
+            }
             //定义图片水印字体类型
             String FONT_NAME = "宋体";
             //定义图片水印字体加粗、变细、倾斜等样式
@@ -49,14 +56,15 @@ public class ImageIOTest {
             //BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             
             //设置水印文字（设置水印字体样式、粗细、大小）
-            Font font = Font.createFont(Font.TRUETYPE_FONT, new File("/Users/wyd/Pictures/HYKaiTiJ.ttf")).deriveFont(FONT_STYLE, FONT_SIZE);
+            
+            Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(FONT_STYLE, FONT_SIZE);
 //            Font font = new Font("楷体", FONT_STYLE, FONT_SIZE);
             //画 “米” 字
             drawx(bufferedImage,font,ALPHA);
             //画一个字符的box
             drawStringBox(bufferedImage, font, 200, 100);
             
-            //随机画字符串
+            //画随机字符串
             Grid grid = new Grid(400.0f, 200.f, font.getSize());
             List<Grid.Node> list = grid.nodes;
             int size = list.size();
@@ -76,11 +84,15 @@ public class ImageIOTest {
                 System.out.println((char) aChar);
             }
             for (int i = 0; i < maxCharSize; i++) {
-                drawChar((char) chars[i], bufferedImage, font, loc.get(i));
+                drawString((char) chars[i], bufferedImage, font, loc.get(i));
+                drawGlyphVector((char) chars[i], bufferedImage, font, loc.get(i));
             }
             
+            //画圆形
+            drawCircle(bufferedImage, font, 200, 100, 100);
+            
             //输出图片
-            File sf = new File("/Users/wyd/Pictures/1-test.png" );
+            File sf = new File(output);
             // 保存图片
             ImageIO.write(bufferedImage, "png", sf);
         } catch (Exception e) {
@@ -89,7 +101,16 @@ public class ImageIOTest {
     }
     
     
-    public void drawChar(char c, BufferedImage bufferedImage, Font font, Grid.Node node) {
+    /**
+     * https://www.matools.com/file/manual/jdk_api_1.8_google/java/awt/Graphics2D.html#drawGlyphVector-java.awt.font.GlyphVector-float-float-
+     * drawString 函数参数说明，参考上述连接
+     *
+     * @param c
+     * @param bufferedImage
+     * @param font
+     * @param node
+     */
+    public void drawString(char c, BufferedImage bufferedImage, Font font, Grid.Node node) {
         Graphics2D g2d = bufferedImage.createGraphics();
         //消除文字锯齿
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -111,7 +132,8 @@ public class ImageIOTest {
     
         int angle = random.ints(-90, 90).limit(1).findFirst().getAsInt();
         g2d.rotate(Math.toRadians(angle), center.x, center.y);
-        //g2d.drawString(String.valueOf(c), node.x, node.y);
+        g2d.drawString(String.valueOf(c), node.x, node.y);
+        
         /*
         //draw glyphVector
         Font2D font2D = FontUtilities.getFont2D(font);
@@ -145,16 +167,43 @@ public class ImageIOTest {
         System.out.println("sang       : " + sang.getBounds2D());
         System.out.println("sang_plus_1: " + sang_plus_1.getBounds2D());
         */
-        GlyphVector  glyphVector = font.createGlyphVector(g2d.getFontRenderContext(), new char[]{c});
         
         
+        //GlyphVector  glyphVector = font.createGlyphVector(g2d.getFontRenderContext(), new char[]{c});
         // attention jdk11 未export StandardGlyphVector，所以使用font.createGlyphVector()替代
         //GlyphVector glyphVector1 = new StandardGlyphVector(font, new char[]{c}, g2d.getFontRenderContext());
+        //g2d.drawGlyphVector(glyphVector, node.x, node.y);
 
-
-        g2d.drawGlyphVector(glyphVector, node.x, node.y);
         //TrueTypeFont font1 = new TrueTypeFont();
         //TrueTypeGlyphMapper glyphMapper = new TrueTypeGlyphMapper(font);
+        g2d.dispose();
+    }
+    
+    public void drawGlyphVector(char c, BufferedImage bufferedImage, Font font, Grid.Node node) {
+        Graphics2D g2d = bufferedImage.createGraphics();
+        //消除文字锯齿
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        //消除画图锯齿
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    
+        g2d.setFont(font);
+        
+        //设置画笔
+        //设置渐变
+        GradientPaint paint = new GradientPaint(20, 20, Color.BLUE, 50, 50, Color.RED, true);
+        g2d.setPaint(paint);
+        
+        
+        Random random = new Random();
+        CharBox originBox = new CharBox(new Coords(node.x, node.y), g2d.getFontMetrics());
+        Coords center = originBox.getCenter();
+        System.out.println(String.format("char:%c -- nox:%s noy:%s centerx:%s centery:%s", c, node.x, node.y, center.x, center.y));
+        int angle = random.ints(-90, 90).limit(1).findFirst().getAsInt();
+        g2d.rotate(Math.toRadians(angle), center.x, center.y);
+       
+        GlyphVector glyphVector = font.createGlyphVector(g2d.getFontRenderContext(), new char[]{c});
+        g2d.drawGlyphVector(glyphVector, node.x, node.y);
+        
         g2d.dispose();
     }
     
@@ -183,6 +232,14 @@ public class ImageIOTest {
     }
     
     
+    /**
+     * 这里x,y表示的是x:字体box left坐标，y:字体baseLine所在的坐标，不是字体box bottom坐标
+     *
+     * @param bufferedImage
+     * @param font
+     * @param x
+     * @param y
+     */
     public void drawStringBox(BufferedImage bufferedImage, Font font, int x, int y) {
         
         //创建绘图工具对象
@@ -204,9 +261,20 @@ public class ImageIOTest {
         g2d.dispose();
     }
     
-    
-    
-    
+    public void drawCircle(BufferedImage bufferedImage, Font font, int x, int y, int r) {
+        //创建绘图工具对象
+        Graphics2D g2d = bufferedImage.createGraphics();
+        //消除文字锯齿
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        //消除画图锯齿
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        g2d.setFont(font);
+        g2d.setColor(Color.RED);
+        //圆形
+        g2d.fillArc(x, y, r, r, 0, 360);
+        g2d.dispose();
+    }
     
     public class Coords {
         float x;

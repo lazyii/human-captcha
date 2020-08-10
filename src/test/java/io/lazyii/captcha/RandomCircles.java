@@ -3,7 +3,6 @@ package io.lazyii.captcha;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 
@@ -28,11 +27,11 @@ public class RandomCircles {
         if (circles.isEmpty()) {
             return false;
         } else {
-            //已存在圆的圆心坐标与此圆 x轴，y轴 差值都大于r的，肯定不会相交。
+            //已存在圆的圆心坐标与此圆 x轴，y轴 差值都大于2*r的，肯定不会相交。
             return circles
                     .stream()
                     .map(x -> new Tuple<Float, Float>(Math.abs(x.getX() - cr.getX()), Math.abs(x.getY() - cr.getY())))
-                    .filter(x -> x._1 <= r || x._2 <= r)
+                    .filter(x -> x._1 <= 2 * r || x._2 <= 2 * r)
                     .anyMatch(x -> 4 * r * r >= x._1 * x._1 + x._2 * x._2);
         }
     }
@@ -47,10 +46,9 @@ public class RandomCircles {
         } else if (num > tryTimes) {
             throw new RuntimeException("error! tryTimes must larger than num");
         } else {
-            IntStream
-                    .rangeClosed(0, tryTimes)
+            IntStream.rangeClosed(0, tryTimes)
                     .mapToObj(x -> randomCr())
-                    .filter(Predicate.not(this::intersect))
+                    .filter(x -> !intersect(x))
                     .peek(circles::add)
                     .limit(num)
                     .count();
@@ -81,10 +79,5 @@ public class RandomCircles {
             this.height = height;
         }
     }
-    
-    public static void main(String[] args) {
-        RandomCircles randomCircles = new RandomCircles();
-        List<Circle> list = randomCircles.randomCrs(2);
-        System.out.println(list);
-    }
+   
 }

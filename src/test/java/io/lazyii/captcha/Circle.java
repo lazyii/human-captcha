@@ -1,8 +1,11 @@
 package io.lazyii.captcha;
 
 public class Circle {
+    //圆心，x轴坐标
     private float x;
+    //圆心，y轴坐标
     private float y;
+    //半径:radius, 直径:diameter = 2*radius
     private float r;
     
     public Circle() {}
@@ -42,6 +45,6 @@ public class Circle {
     
     @Override
     public String toString() {
-        return "{x:" + x + ",y:" + y + ",r:" + r + "}";
+        return "{\"x\":" + x + ",\"y\":" + y + ",\"r\":" + r + "}";
     }
 }
