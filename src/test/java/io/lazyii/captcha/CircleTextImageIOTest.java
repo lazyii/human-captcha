@@ -1,5 +1,6 @@
 package io.lazyii.captcha;
 
+import io.lazyii.captcha.base.Circle;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -20,7 +21,7 @@ public class CircleTextImageIOTest {
     
     @Test
     public void performanceTest() {
-        int m = 100_000_000;
+        int m = 100_000;
         long t1 = System.currentTimeMillis();
         List<Integer> countList = new ArrayList<>();
         System.out.println("开始随机：" + System.currentTimeMillis() + "   " + LocalDateTime.now());

@@ -1,5 +1,8 @@
 package io.lazyii.captcha;
 
+import io.lazyii.captcha.base.Bounds;
+import io.lazyii.captcha.base.Circle;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -12,11 +15,11 @@ import java.util.stream.IntStream;
 public class RandomCircles {
     
     private Bounds DEFAULT_BOUNDS = new Bounds(0, 0, 400f, 200f);
-    private int DEFAULT_TRY = 150;
+    private int    DEFAULT_TRY    = 150;
     
     float r = 30;
     //画布边界
-    Bounds bounds = DEFAULT_BOUNDS;
+    Bounds       bounds  = DEFAULT_BOUNDS;
     List<Circle> circles = new ArrayList<>();
     
     
@@ -58,8 +61,8 @@ public class RandomCircles {
     }
     
     public Circle randomCr() {
-        float x1 = bounds.x + bounds.width - r;
-        float y1 = bounds.y + bounds.height - r;
+        float x1 = bounds.getX() + bounds.getWidth() - r;
+        float y1 = bounds.getY() + bounds.getHeight() - r;
         float x2 = (float) ThreadLocalRandom.current().doubles(1, r, x1).findAny().getAsDouble();
         float y2 = (float) ThreadLocalRandom.current().doubles(1, r, y1).findAny().getAsDouble();
         return new Circle(x2, y2, r);
@@ -72,8 +75,8 @@ public class RandomCircles {
         } else if (num > tryTimes) {
             throw new RuntimeException("error! tryTimes must larger than num");
         } else {
-            float x1 = bounds.x + bounds.width - r;
-            float y1 = bounds.y + bounds.height - r;
+            float x1 = bounds.getX() + bounds.getWidth() - r;
+            float y1 = bounds.getY() + bounds.getHeight() - r;
             IntStream.rangeClosed(0, tryTimes).mapToObj(x -> {
                 float x2 = (float) ThreadLocalRandom.current().doubles(1, r, x1).findAny().getAsDouble();
                 float y2 = (float) ThreadLocalRandom.current().doubles(1, r, y1).findAny().getAsDouble();
@@ -91,22 +94,6 @@ public class RandomCircles {
                     x -> circles.add(new Circle(x._1, x._2, r))
             ).limit(num).count();
             return circles;
-        }
-    }
-    
-    class Bounds{
-        float x;
-        float y;
-        float width;
-        float height;
-    
-        public Bounds() {}
-        
-        public Bounds(float x, float y, float width, float height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
         }
     }
    
