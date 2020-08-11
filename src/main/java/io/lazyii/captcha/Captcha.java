@@ -1,17 +1,17 @@
 package io.lazyii.captcha;
 
+import io.lazyii.captcha.base.CaptchaConfig;
 import io.lazyii.captcha.base.Coordinate;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 public interface Captcha {
     
-    List<? extends Coordinate> randomCoordinate(int num);
+    List<? extends Coordinate> randomCoordinate(CaptchaConfig config);
     
-    List<? extends Coordinate> randomCoordinate(int num, int tryTimes);
+    BufferedImage draw(List<Coordinate> coordinates);
     
-    //void draw();
-    
-    //void valid(String param)
+    int valid(String param);
     
 }

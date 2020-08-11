@@ -45,8 +45,12 @@ public class HumanCaptche {
     }
     
     public BufferedImage createImg() {
+        Captcha captcha = captchaMap.get(config.getServiceName());
         //todo 待实现
-        List<Coordinate> coordinates = (List<Coordinate>) captchaMap.get(config.getServiceName()).randomCoordinate(1);
+        List<Coordinate> coordinates = (List<Coordinate>) captcha.randomCoordinate(config);
+        //todo 画图
+        BufferedImage bufferedImage = captcha.draw(coordinates);
+        
         return null;
     }
     
