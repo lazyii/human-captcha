@@ -10,4 +10,9 @@ public class Tuple<T,U> {
         this._1 = _1;
         this._2 = _2;
     }
+    
+    @Override
+    public String toString() {
+        return "Tuple{" + "_1=" + _1 + ", _2=" + _2 + '}';
+    }
 }

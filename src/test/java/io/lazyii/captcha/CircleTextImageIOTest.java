@@ -8,12 +8,36 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by admin on 2020/8/10 13:49:37.
  */
 public class CircleTextImageIOTest {
+    
+    
+    @Test
+    public void performanceTest() {
+        int m = 100_000_000;
+        long t1 = System.currentTimeMillis();
+        List<Integer> countList = new ArrayList<>();
+        System.out.println("开始随机：" + System.currentTimeMillis() + "   " + LocalDateTime.now());
+        for (int i = 0; i < m; i++) {
+            RandomCircles randomCircles = new RandomCircles();
+            List<Circle> list = randomCircles.randomCrs(5, 100);
+            countList.add(list.size());
+        }
+        long t2 = System.currentTimeMillis();
+        System.out.println("一亿次 随机坐标 time: " + (t2 - t1));
+    
+        long c = countList.stream().filter(x -> x != 5)
+                           .peek(x -> System.out.println(x))
+                          .count();
+        System.out.println(c);
+    }
+    
     
     
     @Test

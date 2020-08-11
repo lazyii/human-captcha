@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 public class RandomCircles {
     
     private Bounds DEFAULT_BOUNDS = new Bounds(0, 0, 400f, 200f);
+    private int DEFAULT_TRY = 150;
     
     float r = 30;
     //画布边界
@@ -37,7 +38,7 @@ public class RandomCircles {
     }
     
     public List<Circle> randomCrs(int num) {
-        return randomCrs(num, 4 * num);
+        return randomCrs(num, DEFAULT_TRY);
     }
     
     public List<Circle> randomCrs(int num, int tryTimes) {
@@ -62,6 +63,35 @@ public class RandomCircles {
         float x2 = (float) ThreadLocalRandom.current().doubles(1, r, x1).findAny().getAsDouble();
         float y2 = (float) ThreadLocalRandom.current().doubles(1, r, y1).findAny().getAsDouble();
         return new Circle(x2, y2, r);
+    }
+    
+    
+    public List<Circle> randomCrs2(int num, int tryTimes) {
+        if (bounds == null) {
+            throw new RuntimeException("bounds is null, please init bounds first");
+        } else if (num > tryTimes) {
+            throw new RuntimeException("error! tryTimes must larger than num");
+        } else {
+            float x1 = bounds.x + bounds.width - r;
+            float y1 = bounds.y + bounds.height - r;
+            IntStream.rangeClosed(0, tryTimes).mapToObj(x -> {
+                float x2 = (float) ThreadLocalRandom.current().doubles(1, r, x1).findAny().getAsDouble();
+                float y2 = (float) ThreadLocalRandom.current().doubles(1, r, y1).findAny().getAsDouble();
+                return new Tuple<Float, Float>(x2, y2);
+            }).filter(random -> {
+                if (circles.isEmpty()) {
+                    return true;
+                } else {
+                    return circles
+                            .stream()
+                            .map(x -> new Tuple<Float, Float>(Math.abs(random._1 - x.getX()), Math.abs(random._2 - x.getY())))
+                            .allMatch(x -> x._1 > r + r || x._2 >  r + r);
+                }
+            }).peek(
+                    x -> circles.add(new Circle(x._1, x._2, r))
+            ).limit(num).count();
+            return circles;
+        }
     }
     
     class Bounds{
