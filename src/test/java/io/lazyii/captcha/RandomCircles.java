@@ -34,7 +34,7 @@ public class RandomCircles {
             //已存在圆的圆心坐标与此圆 x轴，y轴 差值都大于2*r的，肯定不会相交。
             return circles
                     .stream()
-                    .map(x -> new Tuple<Float, Float>(Math.abs(x.getX() - cr.getX()), Math.abs(x.getY() - cr.getY())))
+                    .map(x -> new Tuple2<Float, Float>(Math.abs(x.getX() - cr.getX()), Math.abs(x.getY() - cr.getY())))
                     .filter(x -> x._1 <= 2 * r || x._2 <= 2 * r)
                     .anyMatch(x -> 4 * r * r >= x._1 * x._1 + x._2 * x._2);
         }
@@ -80,14 +80,14 @@ public class RandomCircles {
             IntStream.rangeClosed(0, tryTimes).mapToObj(x -> {
                 float x2 = (float) ThreadLocalRandom.current().doubles(1, r, x1).findAny().getAsDouble();
                 float y2 = (float) ThreadLocalRandom.current().doubles(1, r, y1).findAny().getAsDouble();
-                return new Tuple<Float, Float>(x2, y2);
+                return new Tuple2<Float, Float>(x2, y2);
             }).filter(random -> {
                 if (circles.isEmpty()) {
                     return true;
                 } else {
                     return circles
                             .stream()
-                            .map(x -> new Tuple<Float, Float>(Math.abs(random._1 - x.getX()), Math.abs(random._2 - x.getY())))
+                            .map(x -> new Tuple2<Float, Float>(Math.abs(random._1 - x.getX()), Math.abs(random._2 - x.getY())))
                             .allMatch(x -> x._1 > r + r || x._2 >  r + r);
                 }
             }).peek(

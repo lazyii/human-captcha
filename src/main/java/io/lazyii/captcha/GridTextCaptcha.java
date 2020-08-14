@@ -14,17 +14,17 @@ import java.util.List;
 public class GridTextCaptcha implements Captcha {
     
     @Override
-    public List<? extends Coordinate> randomCoordinate(CaptchaConfig config) {
+    public List<Coordinate> randomCoordinate(CaptchaConfig config) {
         return null;
     }
     
     @Override
-    public BufferedImage draw(List<Coordinate> coordinates) {
+    public BufferedImage draw(char[] chars, List<Coordinate> coordinates, CaptchaConfig config, BufferedImage bufferedImage) {
         return null;
     }
     
     @Override
-    public int valid(String param) {
+    public int valid(String msg, String param) {
         return 0;
     }
 }

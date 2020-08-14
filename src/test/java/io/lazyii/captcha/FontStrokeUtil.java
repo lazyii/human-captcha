@@ -5,21 +5,25 @@ import java.io.UnsupportedEncodingException;
 public class FontStrokeUtil {
     
     
-    public static int getStrokeCount(char charcator) throws UnsupportedEncodingException {
-        byte[] bytes = (String.valueOf(charcator)).getBytes("gbk");
-        if (bytes == null || bytes.length > 2 || bytes.length <= 0) {
-            // 错误引用,非合法字符
-            return 0;
-        }
-        if (bytes.length == 1) {
-            // 英文字符
-            return 0;
-        }
-        if (bytes.length == 2) {
-            // 中文字符
-            int highByte = 256 + bytes[0];
-            int lowByte = 256 + bytes[1];
-            return GetGB2312StrokeCountM(highByte, lowByte);
+    public static int getStrokeCount(char charcator) {
+        try {
+            byte[] bytes = (String.valueOf(charcator)).getBytes("gbk");
+            if (bytes == null || bytes.length > 2 || bytes.length <= 0) {
+                // 错误引用,非合法字符
+                return 0;
+            }
+            if (bytes.length == 1) {
+                // 英文字符
+                return 0;
+            }
+            if (bytes.length == 2) {
+                // 中文字符
+                int highByte = 256 + bytes[0];
+                int lowByte = 256 + bytes[1];
+                return GetGB2312StrokeCountM(highByte, lowByte);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
         // 未知错误
         return 0;

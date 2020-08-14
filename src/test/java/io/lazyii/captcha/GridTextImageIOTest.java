@@ -1,5 +1,7 @@
 package io.lazyii.captcha;
 
+import io.lazyii.captcha.base.CharBox;
+import io.lazyii.captcha.base.Coordinate;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -7,7 +9,6 @@ import java.awt.*;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
  * Created by admin on 2020/8/7 14:02:40.
  */
 public class GridTextImageIOTest {
+    
+    
     
     @Test
     public void markImageByMoreTextOrigin() {
@@ -71,13 +74,9 @@ public class GridTextImageIOTest {
             int maxCharSize = 5;
             List<Grid.Node> loc = ThreadLocalRandom.current().ints(0, size).distinct().limit(maxCharSize).mapToObj(x -> list.get(x)).collect(Collectors.toList());
             int[] chars = ThreadLocalRandom.current().ints(0, cjk.length).map(i -> cjk[i]).filter(x -> {
-                try {
                     int count = FontStrokeUtil.getStrokeCount((char) x);
                     //System.out.println(String.format("char: %s  count: %s", (char) x, count));
                     return count < 8;
-                } catch (UnsupportedEncodingException e) {
-                    return false;
-                }
             }).limit(maxCharSize).toArray();
             
             for (int aChar : chars) {
@@ -126,12 +125,13 @@ public class GridTextImageIOTest {
         
         
         Random random = new Random();
-        CharBox originBox = new CharBox(new Coords(node.x, node.y), g2d.getFontMetrics());
-        Coords center = originBox.getCenter();
-        System.out.println(String.format("char:%c -- nox:%s noy:%s centerx:%s centery:%s", c, node.x, node.y, center.x, center.y));
+        CharBox originBox = new CharBox(new Coordinate(node.x, node.y), g2d.getFontMetrics());
+        Coordinate center = originBox.getCenter();
+        System.out.println(String.format("char:%c -- nox:%s noy:%s centerx:%s centery:%s", c, node.x, node.y, center.getX(), center
+                .getY()));
     
         int angle = random.ints(-90, 90).limit(1).findFirst().getAsInt();
-        g2d.rotate(Math.toRadians(angle), center.x, center.y);
+        g2d.rotate(Math.toRadians(angle), center.getX(), center.getY());
         g2d.drawString(String.valueOf(c), node.x, node.y);
         
         /*
@@ -195,11 +195,11 @@ public class GridTextImageIOTest {
         
         
         Random random = new Random();
-        CharBox originBox = new CharBox(new Coords(node.x, node.y), g2d.getFontMetrics());
-        Coords center = originBox.getCenter();
-        System.out.println(String.format("char:%c -- nox:%s noy:%s centerx:%s centery:%s", c, node.x, node.y, center.x, center.y));
+        CharBox originBox = new CharBox(new Coordinate(node.x, node.y), g2d.getFontMetrics());
+        Coordinate center = originBox.getCenter();
+        System.out.println(String.format("char:%c -- nox:%s noy:%s centerx:%s centery:%s", c, node.x, node.y, center.getX(), center.getY()));
         int angle = random.ints(-90, 90).limit(1).findFirst().getAsInt();
-        g2d.rotate(Math.toRadians(angle), center.x, center.y);
+        g2d.rotate(Math.toRadians(angle), center.getX(), center.getY());
        
         GlyphVector glyphVector = font.createGlyphVector(g2d.getFontRenderContext(), new char[]{c});
         g2d.drawGlyphVector(glyphVector, node.x, node.y);
@@ -276,81 +276,7 @@ public class GridTextImageIOTest {
         g2d.dispose();
     }
     
-    public class Coords {
-        float x;
-        float y;
-    
-        public Coords(float x, float y) {
-            this.x = x;
-            this.y = y;
-        }
-    
-        public Coords() {}
-    
-        @Override
-        public String toString() {
-            return "{\n x: " + x + ",\n y: " + y + "\n}";
-        }
-    }
-    
-    
-    public class CharBox {
-        //g2d绘图时的基点
-        Coords drawPoint;
-        FontMetrics fm;
-        
-        private float boxWidth;
-        private float boxHeight;
-        private float boxDescent;
-    
-        public CharBox() {}
-    
-        public CharBox(Coords drawPoint, FontMetrics fm) {
-            this.drawPoint = drawPoint;
-            this.setFm(fm);
-        }
-    
-        public Coords getDrawPoint() {
-            return drawPoint;
-        }
-    
-        public void setDrawPoint(Coords drawPoint) {
-            this.drawPoint = drawPoint;
-        }
-    
-        public FontMetrics getFm() {
-            return fm;
-        }
-    
-        public void setFm(FontMetrics fm) {
-            this.fm = fm;
-            this.boxWidth = fm.getMaxAdvance();
-            this.boxHeight = fm.getHeight();
-            this.boxDescent = fm.getMaxDescent();
-        }
-    
-        /**
-         * 获得字体的中心点，进行旋转
-         */
-        public Coords getCenter() {
-            Coords bottomLeft = getBottomLeft();
-            return new Coords(bottomLeft.x + boxWidth / 2.0f, bottomLeft.y - boxHeight / 2.0f);
-        }
-    
-        /**
-         * <p>
-         * 单字符串， 根据drawString时的坐标获取 包裹字符的box的左下角点坐标。
-         * 因为draw时，y轴 其实时根据font的BaseLine来进行对其的。所以会有一个descent的差别。x轴没有偏差。
-         * <p>
-         * 向下移动box，获得真实的字符串box。
-         */
-        public Coords getBottomLeft() {
-            return new Coords(drawPoint.x, drawPoint.y + boxDescent);
-        }
-        
-    }
-    
-    @Test
+   @Test
     public void fontSizeTest() {
         int imgWidth = 50;
         int imgHeight = 50;
