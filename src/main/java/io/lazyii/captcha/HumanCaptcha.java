@@ -1,49 +1,36 @@
 package io.lazyii.captcha;
 
-import io.lazyii.captcha.base.*;
+import io.lazyii.captcha.base.CJKUtil;
+import io.lazyii.captcha.base.CaptchaConfig;
+import io.lazyii.captcha.base.Coordinate;
+import io.lazyii.captcha.base.HexUtil;
 
 import java.awt.image.BufferedImage;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by admin on 2020/8/11 16:05:13.
  */
-public class HumanCaptche {
-    
-    private static Map<String, Captcha> captchaMap = new ConcurrentHashMap<>();
-    
-    static {
-        ServiceLoader<Captcha> captchaServices = ServiceLoader.load(Captcha.class);
-        Iterator<Captcha> iterator = captchaServices.iterator();
-        while (iterator.hasNext()) {
-            Captcha captcha = iterator.next();
-            String className = captcha.getClass().getName();
-            if (captchaMap.containsKey(className)) {
-                throw new CaptchaException("duplicated " + className + " when load Captcha service");
-            } else {
-                captchaMap.put(className, captcha);
-            }
-        }
-    }
+public class HumanCaptcha {
     
     private CaptchaConfig config;
     
-    private HumanCaptche() {}
-    private HumanCaptche(CaptchaConfig config) {
+    private HumanCaptcha() {}
+    private HumanCaptcha(CaptchaConfig config) {
         this.config = config;
     }
     
-    public static HumanCaptche instance() {
-        return new HumanCaptche(CaptchaConfig.DEFAULT);
+    public static HumanCaptcha instance() {
+        return new HumanCaptcha(CaptchaConfig.DEFAULT);
     }
     
-    public static HumanCaptche instance(CaptchaConfig config) {
-        return new HumanCaptche(config);
+    public static HumanCaptcha instance(CaptchaConfig config) {
+        return new HumanCaptcha(config);
     }
     
     public Tuple3<List<Coordinate>, BufferedImage, char[]> createImg(BufferedImage image) {
-        Captcha captcha = captchaMap.get(config.getServiceName());
+        Captcha captcha = CaptchaFactory.getCaptcha(config.getServiceName());
         List<Coordinate> coordinates = (List<Coordinate>) captcha.randomCoordinate(config);
         char[] chars = CJKUtil.getChar(coordinates.size());
         BufferedImage bufferedImage = captcha.draw(chars, coordinates, config, image);
@@ -51,7 +38,7 @@ public class HumanCaptche {
     }
     
     public Tuple3<BufferedImage, String, String> createImgWithMsg(BufferedImage image) {
-        Captcha captcha = captchaMap.get(config.getServiceName());
+        Captcha captcha = CaptchaFactory.getCaptcha(config.getServiceName());
         List<Coordinate> coordinates = (List<Coordinate>) captcha.randomCoordinate(config);
         char[] chars = CJKUtil.getChar(coordinates.size());
         BufferedImage bufferedImage = captcha.draw(chars, coordinates, config, image);

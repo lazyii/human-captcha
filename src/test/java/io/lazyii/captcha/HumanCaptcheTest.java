@@ -29,7 +29,7 @@ class HumanCaptcheTest {
         CaptchaConfig config = CaptchaConfig.getDEFAULT();
         config.setDebug(true);
         
-        HumanCaptche humanCaptche = HumanCaptche.instance();
+        HumanCaptcha humanCaptche = HumanCaptcha.instance();
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Files.copy(Paths.get("d:/bg.png"), bos);
@@ -63,7 +63,7 @@ class HumanCaptcheTest {
 
     @Test
     public void multiThreadsTest() throws Exception {
-        HumanCaptche humanCaptche = HumanCaptche.instance();
+        HumanCaptcha humanCaptche = HumanCaptcha.instance();
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Files.copy(Paths.get("d:/bg.png"), bos);
